@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">npr-calendar</string>
+    <string name="action_settings">Wybierz</string>
+    <string name="title_section1">Obserwacja</string>
+    <string name="title_section2">Wykres</string>
+    <string name="title_section3">Historia</string>
+    <string name="temperature">Temperatura</string>
+    <string name="date">Data</string>
+    <string name="hour">Godzina</string>
+    <string name="period">Krwawienie</string>
+    <string name="dayInCycle">Dzień cyklu</string>
+    <string name="save">Zapisz</string>
+    <string name="pickDate">Wybierz datę</string>
+    <string name="clearDatabase">Wyczyść wpisy</string>
+
+</resources>

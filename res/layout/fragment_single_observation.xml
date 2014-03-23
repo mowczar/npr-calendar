@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:onClick="saveButtonClicked"
+        android:text="@string/save" />
+
+    <CheckBox
+        android:id="@+id/periodChkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/save"
+        android:layout_alignBottom="@+id/save"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="13dp"
+        android:text="@string/period" />
+
+    <EditText
+        android:id="@+id/dayPicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/dateTxtEdt"
+        android:layout_toLeftOf="@+id/save"
+        android:ems="10"
+        android:hint="@string/dayInCycle"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/dateTxtEdt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/dayPicker"
+        android:ems="10"
+        android:hint="@string/date"
+        android:inputType="date" />
+
+    <EditText
+        android:id="@+id/temperatureTxtEdt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/dateTxtEdt"
+        android:layout_marginTop="15dp"
+        android:ems="10"
+        android:hint="@string/temperature"
+        android:inputType="numberDecimal" >
+        <requestFocus />
+    </EditText>
+
+    <Button
+        android:id="@+id/pickDateBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/periodChkBox"
+        android:cropToPadding="true"
+        android:onClick="selectDate"
+        android:text="@string/pickDate" />
+
+    <EditText
+        android:id="@+id/hourTxtEdt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/temperatureTxtEdt"
+        android:layout_marginTop="10dp"
+        android:ems="10"
+        android:hint="@string/hour"
+        android:inputType="time" />
+
+    <Button
+        android:id="@+id/clearDatabaseBtn"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/pickDateBtn"
+        android:layout_marginTop="13dp"
+        android:onClick="clearDatabase"
+        android:text="@string/clearDatabase" />
+
+</RelativeLayout>

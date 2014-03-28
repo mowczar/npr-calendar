@@ -1,13 +1,18 @@
 package sn.nprcalendar.persistence.entity;
 
 import java.math.BigDecimal;
+import java.text.ParseException;
 import java.util.Date;
 
+import sn.nprcalendar.util.Constants;
 import android.database.Cursor;
+import android.util.Log;
 
 public class DayObservation {
 
 	private int id;
+
+	private int monthId;
 
 	private int day;
 
@@ -41,6 +46,14 @@ public class DayObservation {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public int getMonthId() {
+		return monthId;
+	}
+
+	public void setMonthId(int monthId) {
+		this.monthId = monthId;
 	}
 
 	public int getDay() {
@@ -77,9 +90,9 @@ public class DayObservation {
 
 	@Override
 	public String toString() {
-		return "DayObservation [id=" + id + ", day=" + day + ", temperature="
-				+ temperature + ", bleeding=" + bleeding + ", observationDate="
-				+ observationDate + "]";
+		return "DayObservation [id=" + id + ", monthId=" + monthId + ", day="
+				+ day + ", temperature=" + temperature + ", bleeding="
+				+ bleeding + ", observationDate=" + observationDate + "]";
 	}
 
 	public void setTemperature(final String temperatureString) {
@@ -88,6 +101,15 @@ public class DayObservation {
 
 	public void setDay(final String day) {
 		setDay(Integer.parseInt(day));
+	}
+
+	public void setObservationDate(final String string) {
+		try {
+			setObservationDate(Constants.DATE_FORMAT.parse(string));
+		} catch (ParseException e) {
+			Log.w(getClass().getSimpleName(), "Cannot convert string " + string
+					+ " to date!");
+		}
 	}
 
 }

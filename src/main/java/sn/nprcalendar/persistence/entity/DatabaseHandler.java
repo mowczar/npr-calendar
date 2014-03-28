@@ -1,6 +1,5 @@
 package sn.nprcalendar.persistence.entity;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -22,48 +21,43 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	public static final String KEY_TEMPERATURE = "temperature";
 	public static final String KEY_IS_BLEEDING = "isBleeding";
 	public static final String KEY_TIME = "time";
+	private static final String KEY_MONTH_ID = "month_id";
+	private static final String[] KEY_TABLE = new String[] { KEY_ID, KEY_DAY,
+			KEY_TEMPERATURE, KEY_IS_BLEEDING, KEY_TIME, KEY_MONTH_ID };
 	private SQLiteDatabase db;
-
-	public DatabaseHandler() {
-		super(null, DATABASE_NAME, null, DATABASE_VERSION);
-		db = this.getReadableDatabase();
-	}
 
 	public DatabaseHandler(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		db = this.getReadableDatabase();
 	}
 
-	// Creating Tables
+	public DatabaseHandler(final Context context, final String database) {
+		super(context, database, null, DATABASE_VERSION);
+		db = this.getReadableDatabase();
+	}
+
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		String TABLE = "CREATE TABLE " + TABLE_OBSERVATIONS + "(" + KEY_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT," + KEY_DAY + " INTEGER,"
 				+ KEY_TEMPERATURE + " REAL," + KEY_IS_BLEEDING + " INTEGER,"
-				+ KEY_TIME + " STRING,"
+				+ KEY_MONTH_ID + " INTEGER," + KEY_TIME + " STRING,"
+				+ "CHANGED_AT DATETIME DEFAULT CURRENT_TIMESTAMP,"
 				+ "CREATED_AT DATETIME DEFAULT CURRENT_TIMESTAMP)";
 		db.execSQL(TABLE);
 	}
 
-	// Upgrading database
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// Drop older table if existed
 		db.execSQL("DROP TABLE IF EXISTS " + TABLE_OBSERVATIONS);
-
-		// Create tables again
 		onCreate(db);
 	}
 
-	// code to add the new contact
 	public long addDayObservation(final DayObservation observation) {
 		SQLiteDatabase db = this.getWritableDatabase();
 
 		ContentValues values = createDayObservationContentValues(observation);
-
-		// Inserting Row
 		long id = db.insert(TABLE_OBSERVATIONS, null, values);
-		// 2nd argument is String containing nullColumnHack
 		db.close(); // Closing database connection
 
 		return id;
@@ -85,8 +79,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	}
 
 	public DayObservation getDayObservation(int id) {
-		Cursor cursor = db.query(TABLE_OBSERVATIONS, new String[] { KEY_ID,
-				KEY_DAY, KEY_TEMPERATURE, KEY_IS_BLEEDING }, KEY_ID + "=?",
+		Cursor cursor = db.query(TABLE_OBSERVATIONS, KEY_TABLE, KEY_ID + "=?",
 				new String[] { String.valueOf(id) }, null, null, null, null);
 		if (cursor != null) {
 			cursor.moveToFirst();
@@ -96,8 +89,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 	}
 
 	public DayObservation getDayObservation(final Date date) {
-		Cursor cursor = db.query(TABLE_OBSERVATIONS, new String[] { KEY_ID,
-				KEY_DAY, KEY_TEMPERATURE, KEY_IS_BLEEDING, KEY_TIME }, KEY_TIME
+		SQLiteDatabase db = this.getWritableDatabase();
+		Cursor cursor = db.query(TABLE_OBSERVATIONS, KEY_TABLE, KEY_TIME
 				+ " LIKE '" + Constants.DATE_DAY_FORMAT.format(date) + "%'",
 				null, null, null, null);
 		if (cursor != null && cursor.moveToFirst()) {
@@ -110,9 +103,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 	public List<DayObservation> getAllDayObservations() {
 		List<DayObservation> dayObservationList = new ArrayList<DayObservation>();
-
 		String selectQuery = "SELECT  * FROM " + TABLE_OBSERVATIONS;
-
 		SQLiteDatabase db = this.getWritableDatabase();
 		Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -127,32 +118,30 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
 	private DayObservation createDayObservation(Cursor cursor) {
 		DayObservation dayObservation = new DayObservation();
-		dayObservation.setId(Integer.parseInt(cursor.getString(0)));
-		dayObservation.setDay(Integer.parseInt(cursor.getString(1)));
-		dayObservation.setTemperature(new BigDecimal(cursor.getString(2)));
-		dayObservation.setBleeding(Boolean.getBoolean(cursor.getString(3)));
+		dayObservation.setId(cursor.getInt(0));
+		dayObservation.setDay(cursor.getInt(1));
+		dayObservation.setTemperature(cursor.getString(2));
+		dayObservation.setBleeding(cursor.getInt(3) > 0);
+		dayObservation.setObservationDate(cursor.getString(4));
+		dayObservation.setMonthId(cursor.getInt(5));
 		return dayObservation;
 	}
 
 	public int updateDayObservation(final DayObservation dayObservation) {
 		SQLiteDatabase db = this.getWritableDatabase();
-
 		ContentValues values = createDayObservationContentValues(dayObservation);
-
-		// updating row
 		return db.update(TABLE_OBSERVATIONS, values, KEY_ID + " = ?",
 				new String[] { String.valueOf(dayObservation.getId()) });
 	}
 
-	// Deleting single contact
-	public void deleteContact(DayObservation dayObservation) {
+	public void deleteObservation(DayObservation dayObservation) {
 		SQLiteDatabase db = this.getWritableDatabase();
 		db.delete(TABLE_OBSERVATIONS, KEY_ID + " = ?",
 				new String[] { String.valueOf(dayObservation.getId()) });
 		db.close();
 	}
 
-	public int getContactsCount() {
+	public int getObservationCount() {
 		String countQuery = "SELECT  * FROM " + TABLE_OBSERVATIONS;
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor cursor = db.rawQuery(countQuery, null);

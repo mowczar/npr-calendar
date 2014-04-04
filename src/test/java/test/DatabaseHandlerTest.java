@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 
@@ -19,10 +20,9 @@ import org.robolectric.Robolectric;
 
 import sn.nprcalendar.persistence.entity.DatabaseHandler;
 import sn.nprcalendar.persistence.entity.DayObservation;
-import sn.nprcalendar.util.Constants;
 
 @RunWith(MyTestRunner.class)
-public class DaoTest extends TestCase {
+public class DatabaseHandlerTest extends TestCase {
 
 	private DatabaseHandler handler = new DatabaseHandler(
 			Robolectric.application);
@@ -30,19 +30,22 @@ public class DaoTest extends TestCase {
 	@Before
 	public void setUp() throws Exception {
 		super.setUp();
+		if (handler.getWritableDatabase() == null) {
+			handler.setDb();
+		}
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		super.tearDown();
-		// handler.onUpgrade(handler.getWritableDatabase(), 3, 3);
 	}
 
 	@Test
 	public void addSingleObservation() {
-		DayObservation observationEntry = createOneObservation();
+		Date date = new GregorianCalendar(2014, 1, 1, 7, 0).getTime();
+		DayObservation observationEntry = createOneObservation(date);
 		handler.addDayObservation(observationEntry);
-		DayObservation savedObservation = handler.getDayObservation(new Date());
+		DayObservation savedObservation = handler.getDayObservation(date);
 		assertThat(savedObservation).isNotNull();
 		assertThat(savedObservation).isEqualToIgnoringGivenFields(
 				observationEntry, "id");
@@ -57,6 +60,18 @@ public class DaoTest extends TestCase {
 		List<DayObservation> savedList = handler.getAllDayObservations();
 		assertThat(savedList).isNotEmpty();
 		assertThat(observationList.size()).isEqualTo(savedList.size());
+	}
+	
+	@Test
+	public void calculateDayOfCycle() {
+		Date date = new GregorianCalendar(2014, 1, 1, 7, 0).getTime();
+		DayObservation observationEntry = createOneObservation(date);
+		handler.addDayObservation(observationEntry);
+		DayObservation lastObservation = handler.getLatestObservation();
+		
+		assertThat(lastObservation).isNotNull();
+		assertThat(lastObservation).isEqualToIgnoringGivenFields(
+				observationEntry, "id");
 	}
 
 	private List<DayObservation> createMonthObservation() {
@@ -74,7 +89,7 @@ public class DaoTest extends TestCase {
 				observation.setDay(i);
 				observation.setBleeding((i < 7) ? true : false);
 				cal.set(Calendar.DAY_OF_YEAR, i);
-				observation.setObservationDate(cal.getTime());
+				observation.setDate(cal.getTime());
 				BigDecimal temperature = new BigDecimal("3"
 						+ (5 + r.nextInt(4)) + "." + r.nextInt(9));
 				observation.setTemperature(temperature);
@@ -86,13 +101,12 @@ public class DaoTest extends TestCase {
 		return monthObservation;
 	}
 
-	private DayObservation createOneObservation() {
+	private DayObservation createOneObservation(final Date date) {
 		DayObservation dayObservation = new DayObservation();
 		dayObservation.setDay(2);
 		dayObservation.setBleeding(true);
 		dayObservation.setTemperature("36.5");
-		dayObservation.setObservationDate(Constants.DATE_FORMAT
-				.format(new Date()));
+		dayObservation.setDate(date);
 		dayObservation.setMonthId(1);
 		return dayObservation;
 	}

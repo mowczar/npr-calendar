@@ -2,6 +2,7 @@ package sn.nprcalendar;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import sn.nprcalendar.adapter.TabsPagerAdapter;
 import sn.nprcalendar.fragment.OverrideObservationDialogFragment;
@@ -77,6 +78,13 @@ public class MainActivity extends FragmentActivity implements
 			}
 		});
 
+		db = new DatabaseHandler(this);
+		putDayValue();
+	}
+
+	private void putDayValue() {
+		EditText dayText = (EditText) findViewById(R.id.dayPicker);
+		dayText.setText(db.calculateDayOfCycle());
 	}
 
 	@Override
@@ -100,12 +108,10 @@ public class MainActivity extends FragmentActivity implements
 
 	public void saveButtonClicked(View v) {
 		updateOneObservationDTO();
-		Date compareDate = dayObservation.getObservationDate();
-
-		db = new DatabaseHandler(this);
+		Date compareDate = dayObservation.getDate();
 
 		DayObservation existingObservation = db
-				.getDayObservation(dayObservation.getObservationDate());
+				.getDayObservation(dayObservation.getDate());
 		if (existingObservation == null) {
 			saveObservation();
 		} else {
@@ -133,7 +139,6 @@ public class MainActivity extends FragmentActivity implements
 
 	public void clearDatabase(View v) {
 		Log.d(STORAGE_SERVICE, "Trying to clear database");
-		db = new DatabaseHandler(this);
 		db.onUpgrade(db.getWritableDatabase(), 3, 3);
 	}
 
@@ -170,11 +175,8 @@ public class MainActivity extends FragmentActivity implements
 		}
 
 		public void onDateSet(DatePicker view, int yy, int mm, int dd) {
-			Calendar cal = Calendar.getInstance();
-			cal.set(Calendar.DATE, dd);
-			cal.set(Calendar.MONTH, mm);
-			cal.set(Calendar.YEAR, yy);
-			dayObservation.setObservationDate(cal.getTime());
+			Calendar cal = new GregorianCalendar(yy, mm, yy);
+			dayObservation.setDate(cal.getTime());
 			populateSetDate(cal.getTime());
 		}
 	}

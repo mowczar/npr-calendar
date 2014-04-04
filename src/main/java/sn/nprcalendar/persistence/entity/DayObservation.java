@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.util.Date;
 
 import sn.nprcalendar.util.Constants;
-import android.database.Cursor;
 import android.util.Log;
 
 public class DayObservation {
@@ -20,25 +19,23 @@ public class DayObservation {
 
 	private boolean bleeding;
 
-	private Date observationDate;
+	private Date date;
 
-	public DayObservation(final int theId, final int theDay,
-			final BigDecimal theTemperature, final boolean isBleeding) {
-		setId(theId);
-		setDay(theDay);
-		temperature = theTemperature;
-		bleeding = isBleeding;
-	}
+//	public DayObservation(final int theId, final int theDay,
+//			final BigDecimal theTemperature, final boolean isBleeding) {
+//		setId(theId);
+//		setDay(theDay);
+//		temperature = theTemperature;
+//		bleeding = isBleeding;
+//	}
 
 	public DayObservation() {
 	}
 
-	public DayObservation(final Cursor cursor) {
-		new DayObservation(Integer.parseInt(cursor.getString(0)),
-				Integer.parseInt(cursor.getString(1)), new BigDecimal(
-						cursor.getString(2)), Boolean.getBoolean(cursor
-						.getString(3)));
-	}
+//	public DayObservation(final Cursor cursor) {
+//		new DayObservation(Integer.parseInt(cursor.getString(0)), Integer.parseInt(cursor.getString(1)), new BigDecimal(cursor.getString(2)),
+//				Boolean.getBoolean(cursor.getString(3)));
+//	}
 
 	public int getId() {
 		return id;
@@ -80,19 +77,25 @@ public class DayObservation {
 		this.bleeding = bleeding;
 	}
 
-	public Date getObservationDate() {
-		return observationDate;
+	public String getDateHour() {
+		return Constants.DATE_HOUR_FORMAT.format(date);
 	}
 
-	public void setObservationDate(Date observationDate) {
-		this.observationDate = observationDate;
+	public String getDateDay() {
+		return Constants.DATE_DAY_FORMAT.format(date);
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 	@Override
 	public String toString() {
-		return "DayObservation [id=" + id + ", monthId=" + monthId + ", day="
-				+ day + ", temperature=" + temperature + ", bleeding="
-				+ bleeding + ", observationDate=" + observationDate + "]";
+		return "DayObservation [id=" + id + ", monthId=" + monthId + ", day=" + day + ", temperature=" + temperature + ", bleeding=" + bleeding + ", date=" + date + "]";
 	}
 
 	public void setTemperature(final String temperatureString) {
@@ -103,12 +106,29 @@ public class DayObservation {
 		setDay(Integer.parseInt(day));
 	}
 
-	public void setObservationDate(final String string) {
+	public void setDateDay(final String dateString) {
 		try {
-			setObservationDate(Constants.DATE_FORMAT.parse(string));
+			if (date == null) {
+				setDate(Constants.DATE_DAY_FORMAT.parse(dateString));
+			} else {
+				setDate(Constants.DATE_FORMAT.parse(dateString + " " + getDateHour()));
+			}
 		} catch (ParseException e) {
-			Log.w(getClass().getSimpleName(), "Cannot convert string " + string
+			Log.w(getClass().getSimpleName(), "Cannot convert string " + dateString
 					+ " to date!");
+		}
+	}
+
+	public void setDateHour(final String hourString) {
+		try {
+			if (date == null) {
+				setDate(Constants.DATE_HOUR_FORMAT.parse(hourString));
+			} else {
+				setDate(Constants.DATE_FORMAT.parse(getDateDay() + " " + hourString));
+			}
+		} catch (ParseException e) {
+			Log.w(getClass().getSimpleName(), "Cannot convert string " + hourString
+					+ " to hour!");
 		}
 	}
 
